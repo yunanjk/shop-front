@@ -7,10 +7,10 @@ import Divider from "primevue/divider";
 import router from "@/router/index.js";
 
 // 스타일 파일 임포트
-import "./assets/main.css";
-import "primevue/resources/themes/saga-blue/theme.css"; // 테마 CSS
-import "primevue/resources/primevue.min.css"; // PrimeVue 기본 스타일
-import "primeicons/primeicons.css"; // PrimeIcons 아이콘
+// import "./assets/main.css";
+// import "primevue/resources/themes/lara-light-blue/theme.css"; // 테마 CSS
+// import "primevue/resources/primevue.min.css"; // PrimeVue 기본 스타일
+// import "primeicons/primeicons.css"; // PrimeIcons 아이콘
 
 const app = createApp(App);
 
