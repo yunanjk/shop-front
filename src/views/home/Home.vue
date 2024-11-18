@@ -1,30 +1,9 @@
-<!--<script setup>-->
-
-<!--</script>-->
-
-<!--<template>-->
-
-<!--</template>-->
-
-<!--<style scoped>-->
-
-<!--</style>-->
-
 <template>
   <div class="home">
-    <HelloWorld msg="Welcome to Your Vue.js App" />
-    <h2>HOME!!!!</h2>
+    <h2>ADMIN</h2>
+    <h2>OPEN YY SHOP</h2>
+    <p>우측 메뉴에서 수행할 작업을 선택하세요.</p>
   </div>
 </template>
 
-<script>
-// @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
-
-export default {
-  name: "Home",
-  components: {
-    HelloWorld,
-  },
-};
-</script>
+<script></script>
