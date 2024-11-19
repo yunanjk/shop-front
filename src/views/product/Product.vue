@@ -1,6 +1,6 @@
 <template>
   <div class="p-d-flex p-jc-center p-ai-center p-p-3">
-    <div class="p-card p-m-3" style="width: 800px">
+    <div class="p-card" style="max-width: 800px">
       <h3 class="p-card-title">상품등록</h3>
       <div class="p-card-body">
         <form @submit.prevent="addProduct">
@@ -10,12 +10,9 @@
             <InputText
               v-model="product.productName"
               id="productName"
-              :class="{ 'p-invalid': errors.productName }"
               placeholder="상품명을 입력하세요"
+              style="width: 100%"
             />
-            <small v-if="errors.productName" class="p-error">{{
-              errors.productName
-            }}</small>
           </div>
 
           <!-- 상품가격 -->
@@ -26,32 +23,24 @@
               id="price"
               mode="currency"
               currency="KRW"
-              :class="{ 'p-invalid': errors.price }"
-              placeholder="0"
+              placeholder="₩0"
+              style="width: 100%"
             />
-            <small v-if="errors.price" class="p-error">{{
-              errors.price
-            }}</small>
           </div>
 
-          <div class="p-divider p-mt-3"></div>
+          <div class="p-divider"></div>
 
+          <!-- 분류 선택 -->
           <h3>분류 선택</h3>
-          <div v-if="loading" class="p-d-flex p-jc-center p-ai-center">
-            <ProgressSpinner />
-          </div>
-
-          <!-- RadioButton for category selection -->
-          <div v-else>
-            <div v-for="category in categories" :key="category.categoryId">
-              <RadioButton
-                :inputId="category.categoryId"
-                :value="category.categoryId"
-                v-model="product.categoryId"
-                :label="category.categoryName"
-                class="p-mb-2"
-              />
-            </div>
+          <div class="category-buttons">
+            <button
+              v-for="category in categories"
+              :key="category.categoryId"
+              :class="{ active: product.categoryId === category.categoryId }"
+              @click="selectCategory(category.categoryId)"
+            >
+              {{ category.categoryName }}
+            </button>
           </div>
 
           <!-- 대표 이미지 -->
@@ -71,21 +60,24 @@
             class="p-mt-3"
           />
 
-          <div class="p-divider p-mt-3"></div>
+          <div class="p-divider"></div>
 
+          <!-- 상품 옵션 -->
           <h3>상품 옵션</h3>
-          <div class="p-d-flex p-jc-between p-mb-3">
+          <div class="p-d-flex p-mb-3">
             <InputText
               v-model="newOption.optionName"
-              label="옵션 이름"
+              placeholder="옵션 이름"
               class="p-mr-2"
+              style="flex: 1"
             />
             <InputNumber
               v-model="newOption.optionAddPrice"
-              label="옵션 추가가격"
               mode="currency"
               currency="KRW"
+              placeholder="₩0"
               class="p-mr-2"
+              style="flex: 1"
             />
             <Button
               icon="pi pi-plus"
@@ -94,18 +86,25 @@
             />
           </div>
 
-          <div v-for="(option, index) in productOptions" :key="option.optionId">
-            <div class="p-d-flex p-ai-center p-jc-between p-mb-2">
-              <InputNumber v-model="option.ea" label="수량" class="p-mr-2" />
-              <span
-                >{{ option.optionName }} (+ ₩{{ option.optionAddPrice }})</span
-              >
-              <Button
-                icon="pi pi-trash"
-                class="p-button-rounded p-button-danger"
-                @click="removeOption(option.optionId)"
-              />
-            </div>
+          <div
+            v-for="(option, index) in productOptions"
+            :key="option.optionId"
+            class="product-options"
+          >
+            <InputNumber
+              v-model="option.ea"
+              placeholder="수량"
+              style="width: 50px"
+              class="p-mr-2"
+            />
+            <span
+              >{{ option.optionName }} (+ ₩{{ option.optionAddPrice }})</span
+            >
+            <Button
+              icon="pi pi-trash"
+              class="p-button-rounded p-button-danger"
+              @click="removeOption(option.optionId)"
+            />
           </div>
 
           <div class="p-d-flex p-jc-between">
@@ -121,14 +120,12 @@
       </div>
     </div>
   </div>
-
-  <!-- Toast 컴포넌트 추가 -->
-  <Toast ref="toast" />
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from "vue";
 import axios from "axios";
+import { shop } from "@/utils/paths/api.js";
 import InputText from "primevue/inputtext";
 import InputNumber from "primevue/inputnumber";
 import Button from "primevue/button";
@@ -144,6 +141,8 @@ const categories = ref([]);
 const toast = ref(null);
 const snackbar = ref(false);
 const text = ref("");
+
+const getCategoryUrl = ref(shop.url.selectCategory);
 
 const product = reactive({
   productName: "",
@@ -194,6 +193,16 @@ const messages = {
 //   return isValid
 // }
 
+onMounted(() => {
+  // 분류 선택 값 불러오기
+  getCategory();
+});
+
+const getCategory = async () => {
+  const res = await axios.get(getCategoryUrl.value);
+  categories.value = res.data;
+};
+
 const setId = (categoryId) => {
   product.categoryId = categoryId;
 };
@@ -228,8 +237,68 @@ const showToast = (message) => {
 };
 </script>
 
-<style scoped>
+<style>
+/* 전체 카드 스타일 */
 .p-card {
-  width: 800px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.p-card-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #333;
+  border-bottom: 2px solid #f9c200;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+/* 카테고리 선택 버튼 */
+.category-buttons button {
+  border-radius: 20px;
+  margin-right: 5px;
+  padding: 8px 12px;
+  background-color: #f3f3f3;
+  border: 1px solid #ddd;
+  color: #666;
+}
+
+.category-buttons button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+/* 옵션 추가 영역 */
+.product-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  border-radius: 5px;
+  margin-bottom: 8px;
+}
+
+.product-options span {
+  flex-grow: 1;
+  text-align: left;
+  margin-left: 10px;
+}
+
+/* 버튼 스타일 */
+.p-button {
+  min-width: 80px;
+}
+
+.p-button-success {
+  background-color: #28a745 !important;
+}
+
+.p-button-danger {
+  background-color: #dc3545 !important;
 }
 </style>
